@@ -98,6 +98,7 @@ void DebugPrint (const char *format, ...)
 	#else
 	fprintf (stderr, "%s", string);
 	#endif
+	va_end(marker);
 }
 
 } // namespace
