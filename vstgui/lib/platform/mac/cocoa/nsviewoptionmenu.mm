@@ -72,6 +72,11 @@ static id VSTGUI_NSMenu_Init (id self, SEL _cmd, void* _menu)
 
 		int32_t index = -1;
 		bool multipleCheck = menu->getStyle () & (kMultipleCheckStyle & ~kCheckStyle);
+		int32_t currentIndex = -1;
+		if (menu->getStyle () & kCheckStyle && !multipleCheck)
+		{
+			currentIndex = menu->getCurrentIndex (true);
+		}
 		CConstMenuItemIterator it = menu->getItems ()->begin ();
 		while (it != menu->getItems ()->end ())
 		{
@@ -112,6 +117,8 @@ static id VSTGUI_NSMenu_Init (id self, SEL _cmd, void* _menu)
 					[nsItem setState:NSOnState];
 				else
 					[nsItem setState:NSOffState];
+				if (index == currentIndex)
+					[nsItem setState:NSOnState];
 				if (item->getKeycode ())
 				{
 					[nsItem setKeyEquivalent:[NSString stringWithCString:item->getKeycode () encoding:NSUTF8StringEncoding]];
