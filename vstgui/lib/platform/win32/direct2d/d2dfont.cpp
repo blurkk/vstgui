@@ -101,7 +101,7 @@ IDWriteTextLayout* D2DFont::createTextLayout (const CString& string)
 }
 
 //-----------------------------------------------------------------------------
-void D2DFont::drawString (CDrawContext* context, const CString& string, const CPoint& p, bool antialias)
+void D2DFont::drawString (CDrawContext* context, const CString& string, const CPoint& p, bool antialias, CBaselineTxtAlign baseAlign)
 {
 	D2DDrawContext* d2dContext = dynamic_cast<D2DDrawContext*> (context);
 	if (d2dContext && textFormat)
@@ -125,6 +125,7 @@ void D2DFont::drawString (CDrawContext* context, const CString& string, const CP
 				renderTarget->SetTextAntialiasMode (antialias ? D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE : D2D1_TEXT_ANTIALIAS_MODE_ALIASED);
 				CRect clipRect;
 				D2DDrawContext::D2DApplyClip ac (d2dContext);
+#warning "Need to implement correct baseline alignment"
 				D2D1_POINT_2F origin = {(FLOAT)(p.x + context->getOffset ().x), (FLOAT)(p.y + context->getOffset ().y + 1.) - textFormat->GetFontSize ()};
 				d2dContext->getRenderTarget ()->DrawTextLayout (origin, textLayout, d2dContext->getFontBrush ());
 				textLayout->Release ();

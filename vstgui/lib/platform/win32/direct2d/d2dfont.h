@@ -60,7 +60,7 @@ protected:
 
 	IFontPainter* getPainter () { return this; }
 
-	void drawString (CDrawContext* context, const CString& string, const CPoint& p, bool antialias = true);
+	void drawString (CDrawContext* context, const CString& string, const CPoint& p, bool antialias = true, CBaselineTxtAlign baseAlign = kAlignBaseline);
 	CCoord getStringWidth (CDrawContext* context, const CString& string, bool antialias = true);
 
 	IDWriteTextLayout* createTextLayout (const CString& string);

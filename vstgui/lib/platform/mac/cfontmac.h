@@ -58,7 +58,7 @@ public:
 protected:
 	~CoreTextFont ();
 
-	void drawString (CDrawContext* context, const CString& string, const CPoint& p, bool antialias = true);
+	void drawString (CDrawContext* context, const CString& string, const CPoint& p, bool antialias = true, CBaselineTxtAlign baseAlign = kAlignBaseline);
 	CCoord getStringWidth (CDrawContext* context, const CString& string, bool antialias = true);
 
 	double getAscent () const;

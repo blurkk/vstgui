@@ -58,18 +58,24 @@ public:
 protected:
 	~GdiPlusFont ();
 	
-	double getAscent () const;
-	double getDescent () const;
-	double getLeading () const;
-	double getCapHeight () const;
+	double getAscent () const { return ascent; }
+	double getDescent () const { return descent; }
+	double getLeading () const { return leading; }
+	double getCapHeight () const { return -1; } // Not available in GDI+, sadly
 
 	IFontPainter* getPainter () { return this; }
 
-	void drawString (CDrawContext* context, const CString& string, const CPoint& p, bool antialias = true);
+	void drawString (CDrawContext* context, const CString& string, const CPoint& p, bool antialias = true, CBaselineTxtAlign baseAlign = kAlignBaseline);
 	CCoord getStringWidth (CDrawContext* context, const CString& string, bool antialias = true);
 
 	Gdiplus::Font* font;
 	INT gdiStyle;
+
+private:
+	double ascent;
+	double descent;
+	double leading;
+	static const Gdiplus::StringFormat *stringFormat;
 };
 
 //-----------------------------------------------------------------------------

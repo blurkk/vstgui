@@ -132,7 +132,7 @@ double CoreTextFont::getCapHeight () const
 }
 
 //-----------------------------------------------------------------------------
-void CoreTextFont::drawString (CDrawContext* context, const CString& string, const CPoint& point, bool antialias)
+void CoreTextFont::drawString (CDrawContext* context, const CString& string, const CPoint& point, bool antialias, CBaselineTxtAlign baseAlign)
 {
 	const MacString* macString = dynamic_cast<const MacString*> (string.getPlatformString ());
 	CFStringRef utf8Str = macString ? macString->getCFString () : 0;
@@ -156,6 +156,8 @@ void CoreTextFont::drawString (CDrawContext* context, const CString& string, con
 				{
 					CGContextSetShouldAntialias (cgContext, antialias);
 					CGContextSetShouldSmoothFonts (cgContext, true);
+					// Core Text draws the text with the baseline aligned to the y coordinate of the specified point,
+					// so there is no need to specially handle kAlignBaseline vs kAlignNative.
 					CGContextSetTextPosition (cgContext, point.x, point.y);
 					CTLineDraw (line, cgContext);
 					if (style & kUnderlineFace)

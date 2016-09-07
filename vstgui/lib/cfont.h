@@ -47,6 +47,15 @@ class IPlatformFont;
 class IFontPainter;
 struct CPoint;
 
+//----------------------------
+// @brief Text alignment of drawing point to font baseline
+//----------------------------
+enum CBaselineTxtAlign
+{
+	kAlignNative = 0,	///< Use the OS's native drawing position (GDI+: top-left, Core Text: font baseline)
+	kAlignBaseline		///< Draw the text with the font's baseline set to the requested point
+};
+
 //-----------
 // @brief Text Face
 //-----------
@@ -124,7 +133,7 @@ class IFontPainter
 public:
 	virtual ~IFontPainter () {}
 
-	virtual void drawString (CDrawContext* context, const CString& string, const CPoint& p, bool antialias = true) = 0;
+	virtual void drawString (CDrawContext* context, const CString& string, const CPoint& p, bool antialias = true, CBaselineTxtAlign baseAlign = kAlignBaseline) = 0;
 	virtual CCoord getStringWidth (CDrawContext* context, const CString& string, bool antialias = true) = 0;
 };
 
@@ -140,10 +149,10 @@ public:
 	static IPlatformFont* create (UTF8StringPtr name, const CCoord& size, const int32_t& style);
 	static bool getAllPlatformFontFamilies (std::list<std::string>& fontFamilyNames);
 	
-	virtual double getAscent () const = 0;		///< returns the ascent line offset of the baseline of this font. If not supported returns -1
-	virtual double getDescent () const = 0;		///< returns the descent line offset of the baseline of this font. If not supported returns -1
-	virtual double getLeading () const = 0;		///< returns the space between lines for this font. If not supported returns -1
-	virtual double getCapHeight () const = 0;	///< returns the height of the highest capital letter for this font. If not supported returns -1
+	virtual double getAscent () const = 0;		///< returns the ascent line offset of the baseline of this font. If not supported returns -1. Typically varies between GDI+ and Core Text due to them using different metrics headers in font files.
+	virtual double getDescent () const = 0;		///< returns the descent line offset of the baseline of this font. If not supported returns -1. Typically consistent between platforms.
+	virtual double getLeading () const = 0;		///< returns the space between lines for this font. If not supported returns -1. Typically varies between GDI+ and Core Text.
+	virtual double getCapHeight () const = 0;	///< returns the height of the highest capital letter for this font. If not supported returns -1. Not available in GDI+.
 
 	virtual IFontPainter* getPainter () = 0;
 };
