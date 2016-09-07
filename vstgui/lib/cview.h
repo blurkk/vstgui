@@ -139,9 +139,9 @@ enum CButton
 	kMButton		= 1 << 2,		///< middle mouse button
 	kRButton		= 1 << 3,		///< right mouse button
 	kShift			= 1 << 4,		///< shift modifier
-	kControl		= 1 << 5,		///< control modifier (Command Key on Mac OS X and Control Key on Windows)
+	kControl		= 1 << 5,		///< control modifier (Control Key on Mac OS X and Windows, unless swapped with the Command key on OS X)
 	kAlt			= 1 << 6,		///< alt modifier
-	kApple			= 1 << 7,		///< apple modifier (Mac OS X only. Is the Control key)
+	kApple			= 1 << 7,		///< apple modifier (Mac OS X only. Is the Command key, unless swapped with the Control key)
 	kButton4		= 1 << 8,		///< 4th mouse button
 	kButton5		= 1 << 9,		///< 5th mouse button
 	kDoubleClick	= 1 << 10		///< mouse button is double click

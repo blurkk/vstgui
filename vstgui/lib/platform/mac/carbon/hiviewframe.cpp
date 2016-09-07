@@ -49,6 +49,18 @@
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations" // we know that we use deprecated functions from Carbon, so we don't want to be warned
 
+#if VSTGUI_SWAP_CONTROL_AND_COMMAND
+	#define BUTTON_MODIFIER_INTERPRETED_AS_COMMAND kControl
+	#define BUTTON_MODIFIER_INTERPRETED_AS_CONTROL kApple
+	#define KEY_MODIFIER_INTERPRETED_AS_COMMAND MODIFIER_CONTROL
+	#define KEY_MODIFIER_INTERPRETED_AS_CONTROL MODIFIER_COMMAND
+#else
+	#define BUTTON_MODIFIER_INTERPRETED_AS_COMMAND kApple
+	#define BUTTON_MODIFIER_INTERPRETED_AS_CONTROL kControl
+	#define KEY_MODIFIER_INTERPRETED_AS_COMMAND MODIFIER_COMMAND
+	#define KEY_MODIFIER_INTERPRETED_AS_CONTROL MODIFIER_CONTROL
+#endif
+
 namespace VSTGUI {
 
 #if !MAC_COCOA
@@ -571,19 +583,26 @@ bool HIViewFrame::getCurrentMouseButtons (CButtonState& buttons) const
 
 	state = GetCurrentKeyModifiers ();
 	if (state & cmdKey)
-		buttons |= kControl;
+		buttons |= BUTTON_MODIFIER_INTERPRETED_AS_COMMAND;
 	if (state & shiftKey)
 		buttons |= kShift;
 	if (state & optionKey)
 		buttons |= kAlt;
 	if (state & controlKey)
-		buttons |= kApple;
+		buttons |= BUTTON_MODIFIER_INTERPRETED_AS_CONTROL;
+#if VSTGUI_FAKE_ONE_BUTTON_RIGHT_CLICK
 	// for the one buttons
+	// @note I don't believe it's the role of a library to lie about the actual buttons pressed:
+	// A library can't guess what the app needs or the end-user intends, so single-button mouse handling
+	// should either be done in the OS / driver or the app. Not here where it loses information.
+	// The following logic, if I understand correctly, would have meant if the control key was pressed
+	// the Ctrl+left click combination could never be seen, which seems just plain wrong.
 	if (buttons & kApple && buttons & kLButton)
 	{
 		buttons &= ~(kApple | kLButton);
 		buttons |= kRButton;
 	}
+#endif
 
 	return true;
 }
@@ -905,13 +924,13 @@ pascal OSStatus HIViewFrame::carbonMouseEventHandler (EventHandlerCallRef inHand
 			if (buttonState == 5)
 				buttons |= kButton5;
 			if (modifiers & cmdKey)
-				buttons |= kControl;
+				buttons |= BUTTON_MODIFIER_INTERPRETED_AS_COMMAND;
 			if (modifiers & shiftKey)
 				buttons |= kShift;
 			if (modifiers & optionKey)
 				buttons |= kAlt;
 			if (modifiers & controlKey)
-				buttons |= kApple;
+				buttons |= BUTTON_MODIFIER_INTERPRETED_AS_CONTROL;
 			CPoint point ((CCoord)location.x, (CCoord)location.y);
 			switch (eventKind)
 			{
@@ -1319,13 +1338,13 @@ pascal OSStatus HIViewFrame::carbonEventHandler (EventHandlerCallRef inHandlerCa
 					GetEventParameter (inEvent, kEventParamKeyModifiers, typeUInt32, NULL, sizeof (UInt32), NULL, &modifiers);
 					CButtonState buttons = 0;
 					if (modifiers & cmdKey)
-						buttons |= kControl;
+						buttons |= BUTTON_MODIFIER_INTERPRETED_AS_COMMAND;
 					if (modifiers & shiftKey)
 						buttons |= kShift;
 					if (modifiers & optionKey)
 						buttons |= kAlt;
 					if (modifiers & controlKey)
-						buttons |= kApple;
+						buttons |= BUTTON_MODIFIER_INTERPRETED_AS_CONTROL;
 					
 					HIPointConvert (&windowHIPoint, kHICoordSpaceWindow, windowRef, kHICoordSpaceView, hiviewframe->controlRef);
 					
@@ -1436,13 +1455,13 @@ pascal OSStatus HIViewFrame::carbonEventHandler (EventHandlerCallRef inHandlerCa
 							}
 						}
 						if (modifiers & cmdKey)
-							vstKeyCode.modifier |= MODIFIER_CONTROL;
+							vstKeyCode.modifier |= KEY_MODIFIER_INTERPRETED_AS_COMMAND;
 						if (modifiers & shiftKey)
 							vstKeyCode.modifier |= MODIFIER_SHIFT;
 						if (modifiers & optionKey)
 							vstKeyCode.modifier |= MODIFIER_ALTERNATE;
 						if (modifiers & controlKey)
-							vstKeyCode.modifier |= MODIFIER_COMMAND;
+							vstKeyCode.modifier |= KEY_MODIFIER_INTERPRETED_AS_CONTROL;
 						if (frame->platformOnKeyDown (vstKeyCode) != -1)
 							result = noErr;
 						

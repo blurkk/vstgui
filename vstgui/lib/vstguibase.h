@@ -71,6 +71,12 @@
 			#define __CF_USE_FRAMEWORK_INCLUDES__ 1
 		#endif
 	#endif
+	#if !defined(VSTGUI_SWAP_CONTROL_AND_COMMAND)
+		#define VSTGUI_SWAP_CONTROL_AND_COMMAND 0
+	#endif
+	#if !defined(VSTGUI_FAKE_ONE_BUTTON_RIGHT_CLICK)
+		#define VSTGUI_FAKE_ONE_BUTTON_RIGHT_CLICK 0
+	#endif
 #endif
 
 #if WINDOWS

@@ -178,11 +178,11 @@ MenuRef HIViewOptionMenu::createMenu (COptionMenu* menu)
 					if (itemModifiers & kShift)
 						keyModifiers |= kMenuShiftModifier;
 					if (!(itemModifiers & kControl))
-						keyModifiers |= kMenuNoCommandModifier;
+						keyModifiers |= kMenuNoCommandModifier; // Not sure if this needs to be optional (as elsewhere) to reverse VSTGUI's swapping of Control and Command modifiers
 					if (itemModifiers & kAlt)
 						keyModifiers |= kMenuOptionModifier;
 					if (itemModifiers & kApple)
-						keyModifiers |= kMenuControlModifier;
+						keyModifiers |= kMenuControlModifier; // Not sure if this needs to be optional (as elsewhere) to reverse VSTGUI's swapping of Control and Command modifiers
 					
 					SetMenuItemModifiers (menuRef, i, keyModifiers);
 				}
