@@ -43,6 +43,8 @@
 #include <objidl.h>
 #include <gdiplus.h>
 
+#include <map>
+
 namespace VSTGUI {
 
 //-----------------------------------------------------------------------------
@@ -68,6 +70,31 @@ protected:
 
 	Gdiplus::Font* font;
 	INT gdiStyle;
+};
+
+//-----------------------------------------------------------------------------
+class GdiPlusCustomFontRegistry : public ICustomFontRegistry
+{
+public:
+	/// Return the instance, creating it if necessary.
+	static GdiPlusCustomFontRegistry* getInstance ();
+
+	/// Return the instance only if the registry has been created and at least
+	/// one custom font has been registered, otherwise return a null pointer.
+	static GdiPlusCustomFontRegistry* getInstanceIfFontsRegistered ();
+
+	virtual bool registerFont (UTF8StringPtr name, UTF8StringPtr fileName);
+	bool isRegistered (UTF8StringPtr name);
+	Gdiplus::PrivateFontCollection& getCollection () { return customFontCollection; }
+	Gdiplus::FontFamily* getFamily (UTF8StringPtr name) { return registeredFamilies[name]; }
+
+private:
+	GdiPlusCustomFontRegistry ();
+	~GdiPlusCustomFontRegistry ();
+	
+	static GdiPlusCustomFontRegistry* gInstance;
+	Gdiplus::PrivateFontCollection customFontCollection;
+	std::map<std::string, Gdiplus::FontFamily*> registeredFamilies;
 };
 
 } // namespace

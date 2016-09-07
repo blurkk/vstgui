@@ -237,6 +237,12 @@ IPlatformFont* IPlatformFont::create (const char* name, const CCoord& size, cons
 	return 0;
 }
 
+//-----------------------------------------------------------------------------
+ICustomFontRegistry* ICustomFontRegistry::create ()
+{
+	return GdiPlusCustomFontRegistry::getInstance ();
+}
+
 /// @cond ignore
 //-----------------------------------------------------------------------------
 GDIPlusGlobals* GDIPlusGlobals::gInstance = 0;

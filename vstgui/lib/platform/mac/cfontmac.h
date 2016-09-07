@@ -100,6 +100,13 @@ protected:
 
 #endif
 
+//-----------------------------------------------------------------------------
+class CoreTextCustomFontRegistry : public ICustomFontRegistry
+{
+public:
+	virtual bool registerFont (UTF8StringPtr name, UTF8StringPtr fileName);
+};
+
 } // namespace
 
 #endif // MAC

@@ -97,7 +97,18 @@ GdiPlusFont::GdiPlusFont (const char* name, const CCoord& size, const int32_t& s
 
 	WCHAR tempName [200];
 	mbstowcs (tempName, name, 200);
-	font = new Gdiplus::Font (tempName, (Gdiplus::REAL)size, gdiStyle, Gdiplus::UnitPixel);
+	Gdiplus::FontFamily* family = 0;
+	GdiPlusCustomFontRegistry *registry = GdiPlusCustomFontRegistry::getInstanceIfFontsRegistered ();
+	if (registry && registry->isRegistered (name))
+	{
+		Gdiplus::PrivateFontCollection &collection = registry->getCollection ();
+		family = registry->getFamily (name);
+		font = new Gdiplus::Font (family, (Gdiplus::REAL)size, gdiStyle, Gdiplus::UnitPixel);
+	}
+	else
+	{
+		font = new Gdiplus::Font (tempName, (Gdiplus::REAL)size, gdiStyle, Gdiplus::UnitPixel);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -193,6 +204,74 @@ double GdiPlusFont::getLeading () const
 double GdiPlusFont::getCapHeight () const
 {
 	return -1;
+}
+
+//-----------------------------------------------------------------------------
+GdiPlusCustomFontRegistry* GdiPlusCustomFontRegistry::gInstance = 0;
+
+//-----------------------------------------------------------------------------
+GdiPlusCustomFontRegistry* GdiPlusCustomFontRegistry::getInstance ()
+{
+	GDIPlusGlobals::enter ();
+	if (!gInstance)
+	{
+		gInstance = new GdiPlusCustomFontRegistry;
+	}
+	GDIPlusGlobals::exit ();
+	return gInstance;
+}
+
+//-----------------------------------------------------------------------------
+GdiPlusCustomFontRegistry* GdiPlusCustomFontRegistry::getInstanceIfFontsRegistered ()
+{
+	GdiPlusCustomFontRegistry* result = 0;
+	if (gInstance && !gInstance->registeredFamilies.empty ())
+	{
+		result = gInstance;
+	}
+	return result;
+}
+
+//-----------------------------------------------------------------------------
+GdiPlusCustomFontRegistry::GdiPlusCustomFontRegistry ()
+{
+	GDIPlusGlobals::enter ();
+}
+
+//-----------------------------------------------------------------------------
+GdiPlusCustomFontRegistry::~GdiPlusCustomFontRegistry ()
+{
+	GDIPlusGlobals::exit ();
+}
+	
+//-----------------------------------------------------------------------------
+bool GdiPlusCustomFontRegistry::registerFont (UTF8StringPtr name, UTF8StringPtr fileName)
+{
+	UTF8StringHelper str (fileName);
+    Gdiplus::Status res = customFontCollection.AddFontFile (str.getWideString ());
+    bool registerSucceeded = res == Gdiplus::Ok;
+    if (registerSucceeded)
+    {
+        // We get and save the font family associated with this font name for two reasons:
+        // 1. The family is likely to be reused several times anyway, so this avoids the need to look it up by name
+        //    several times over.
+        // 2. I've seen strange problems when using the variant of the Gdiplus::Font constructor that takes a
+        //    collection argument. The first font seems to be created successfully from the collection, but subsequent
+        //    ones fail with an InvalidParameter error. This may be due to the Gdiplus::FontFamily wrapper object
+        //    deleting the native family in its destructor. I may be misunderstanding the intended life span of these
+        //    wrapper objects, but the GDI+ documentation is silent on such matters. Creating a font family directly
+        //	  here seems to avoid this problem and is arguably a neater way to do things anyway.
+        UTF8StringHelper nameUtf8 (name);
+        Gdiplus::FontFamily* family = new Gdiplus::FontFamily (nameUtf8.getWideString (), &customFontCollection);
+        registeredFamilies[std::string (name)] = family;
+    }
+    return registerSucceeded;
+}
+	
+//-----------------------------------------------------------------------------
+bool GdiPlusCustomFontRegistry::isRegistered (UTF8StringPtr name)
+{
+	return registeredFamilies.count (std::string (name)) != 0;
 }
 
 } // namespace

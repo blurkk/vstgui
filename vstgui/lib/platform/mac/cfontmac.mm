@@ -356,6 +356,25 @@ CCoord ATSUFont::getStringWidth (CDrawContext* context, const CString& string, b
 
 #endif
 
+//-----------------------------------------------------------------------------
+ICustomFontRegistry* ICustomFontRegistry::create ()
+{
+	return new CoreTextCustomFontRegistry;
+}
+
+//-----------------------------------------------------------------------------
+bool CoreTextCustomFontRegistry::registerFont (UTF8StringPtr name, UTF8StringPtr fileName)
+{
+	CFURLRef fontUrl = CFURLCreateFromFileSystemRepresentation (0, (const UInt8*)fileName, strlen (fileName), false);
+    CFErrorRef error = NULL;
+    bool registerSucceeded = CTFontManagerRegisterFontsForURL((/*__bridge*/ CFURLRef)fontUrl, kCTFontManagerScopeProcess, &error);
+    if (!registerSucceeded)
+    {
+        CFShow(error);
+    }
+    return registerSucceeded;
+}
+
 } // namespace
 
 #endif // MAC

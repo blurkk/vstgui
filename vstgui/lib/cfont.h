@@ -148,6 +148,29 @@ public:
 	virtual IFontPainter* getPainter () = 0;
 };
 
+//-----------------------------------------------------------------------------
+// ICustomFontRegistry declaration
+//! @brief custom font registry class
+///
+/// Encapsulation of platform-specific facility to register custom fonts.
+//-----------------------------------------------------------------------------
+class ICustomFontRegistry : public CBaseObject
+{
+public:
+	static ICustomFontRegistry* create ();
+	
+	/// Register a TTF or OTF font file to use as a custom font.
+	/// @param name
+	///		The family name of the font, used to identify the font in CFontDesc.
+	/// @param fileName
+	///		The path to actual TTF or OTF font file to register.
+	/// @return
+	/// 	Returns true if the font was successfully registered, otherwise returns false.
+	/// @note
+	///		Typically only TTF files work reliably in GDI+ in Windows.
+	virtual bool registerFont (UTF8StringPtr name, UTF8StringPtr fileName) = 0;
+};
+
 } // namespace
 
 #endif
