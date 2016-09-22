@@ -43,6 +43,8 @@
 #include <objidl.h>
 #include <gdiplus.h>
 
+#include <map>
+
 namespace VSTGUI {
 
 //-----------------------------------------------------------------------------
@@ -57,18 +59,49 @@ public:
 protected:
 	~GdiPlusFont ();
 	
-	double getAscent () const VSTGUI_OVERRIDE_VMETHOD;
-	double getDescent () const VSTGUI_OVERRIDE_VMETHOD;
-	double getLeading () const VSTGUI_OVERRIDE_VMETHOD;
-	double getCapHeight () const VSTGUI_OVERRIDE_VMETHOD;
+	double getAscent () const VSTGUI_OVERRIDE_VMETHOD { return ascent; }
+	double getDescent () const VSTGUI_OVERRIDE_VMETHOD { return descent; }
+	double getLeading () const VSTGUI_OVERRIDE_VMETHOD { return leading; }
+	double getCapHeight () const VSTGUI_OVERRIDE_VMETHOD { return -1; } // Not available in GDI+, sadly
 
 	IFontPainter* getPainter () VSTGUI_OVERRIDE_VMETHOD { return this; }
 
-	void drawString (CDrawContext* context, IPlatformString* string, const CPoint& p, bool antialias = true) VSTGUI_OVERRIDE_VMETHOD;
+	void drawString (CDrawContext* context, IPlatformString* string, const CPoint& p, bool antialias = true, CBaselineTxtAlign baseAlign = kAlignBaseline) VSTGUI_OVERRIDE_VMETHOD;
 	CCoord getStringWidth (CDrawContext* context, IPlatformString* string, bool antialias = true) VSTGUI_OVERRIDE_VMETHOD;
 
 	Gdiplus::Font* font;
 	INT gdiStyle;
+
+private:
+	double ascent;
+	double descent;
+	double leading;
+	static const Gdiplus::StringFormat *stringFormat;
+};
+
+//-----------------------------------------------------------------------------
+class GdiPlusCustomFontRegistry : public ICustomFontRegistry
+{
+public:
+	/// Return the instance, creating it if necessary.
+	static GdiPlusCustomFontRegistry* getInstance ();
+
+	/// Return the instance only if the registry has been created and at least
+	/// one custom font has been registered, otherwise return a null pointer.
+	static GdiPlusCustomFontRegistry* getInstanceIfFontsRegistered ();
+
+	virtual bool registerFont (UTF8StringPtr name, UTF8StringPtr fileName);
+	bool isRegistered (UTF8StringPtr name);
+	Gdiplus::PrivateFontCollection& getCollection () { return customFontCollection; }
+	Gdiplus::FontFamily* getFamily (UTF8StringPtr name) { return registeredFamilies[name]; }
+
+private:
+	GdiPlusCustomFontRegistry ();
+	~GdiPlusCustomFontRegistry ();
+	
+	static GdiPlusCustomFontRegistry* gInstance;
+	Gdiplus::PrivateFontCollection customFontCollection;
+	std::map<std::string, Gdiplus::FontFamily*> registeredFamilies;
 };
 
 } // namespace

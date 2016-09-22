@@ -250,7 +250,7 @@ CTLineRef CoreTextFont::createCTLine (CDrawContext* context, MacString* macStrin
 }
 
 //-----------------------------------------------------------------------------
-void CoreTextFont::drawString (CDrawContext* context, IPlatformString* string, const CPoint& point, bool antialias)
+void CoreTextFont::drawString (CDrawContext* context, IPlatformString* string, const CPoint& point, bool antialias, CBaselineTxtAlign baseAlign)
 {
 	MacString* macString = dynamic_cast<MacString*> (string);
 	if (macString == 0)
@@ -271,6 +271,8 @@ void CoreTextFont::drawString (CDrawContext* context, IPlatformString* string, c
 			CGContextSetShouldSmoothFonts (cgContext, true);
 			CGContextSetShouldSubpixelPositionFonts (cgContext, true);
 			CGContextSetShouldSubpixelQuantizeFonts (cgContext, true);
+			// Core Text draws the text with the baseline aligned to the y coordinate of the specified point,
+			// so there is no need to specially handle kAlignBaseline vs kAlignNative.
 			CGContextSetTextPosition (cgContext, static_cast<CGFloat> (point.x), cgPoint.y);
 			CTLineDraw (line, cgContext);
 			if (style & kUnderlineFace)
@@ -320,6 +322,25 @@ CCoord CoreTextFont::getStringWidth (CDrawContext* context, IPlatformString* str
 		CFRelease (line);
 	}
 	return result;
+}
+
+//-----------------------------------------------------------------------------
+ICustomFontRegistry* ICustomFontRegistry::create ()
+{
+	return new CoreTextCustomFontRegistry;
+}
+
+//-----------------------------------------------------------------------------
+bool CoreTextCustomFontRegistry::registerFont (UTF8StringPtr name, UTF8StringPtr fileName)
+{
+	CFURLRef fontUrl = CFURLCreateFromFileSystemRepresentation (0, (const UInt8*)fileName, strlen (fileName), false);
+    CFErrorRef error = NULL;
+    bool registerSucceeded = CTFontManagerRegisterFontsForURL((/*__bridge*/ CFURLRef)fontUrl, kCTFontManagerScopeProcess, &error);
+    if (!registerSucceeded)
+    {
+        CFShow(error);
+    }
+    return registerSucceeded;
 }
 
 } // namespace

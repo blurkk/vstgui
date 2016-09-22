@@ -39,6 +39,14 @@
 #include "../../../vstkeycode.h"
 #include "../../../cview.h"
 
+#if VSTGUI_SWAP_CONTROL_AND_COMMAND
+	#define KEY_MODIFIER_INTERPRETED_AS_COMMAND MODIFIER_CONTROL
+	#define KEY_MODIFIER_INTERPRETED_AS_CONTROL MODIFIER_COMMAND
+#else
+	#define KEY_MODIFIER_INTERPRETED_AS_COMMAND MODIFIER_COMMAND
+	#define KEY_MODIFIER_INTERPRETED_AS_CONTROL MODIFIER_CONTROL
+#endif
+
 //------------------------------------------------------------------------------------
 HIDDEN Class generateUniqueClass (NSMutableString* className, Class baseClass)
 {
@@ -145,11 +153,11 @@ HIDDEN VstKeyCode CreateVstKeyCodeFromNSEvent (NSEvent* theEvent)
 	if (modifiers & NSShiftKeyMask)
 		kc.modifier |= MODIFIER_SHIFT;
 	if (modifiers & NSCommandKeyMask)
-		kc.modifier |= MODIFIER_CONTROL;
+		kc.modifier |= KEY_MODIFIER_INTERPRETED_AS_COMMAND;
 	if (modifiers & NSAlternateKeyMask)
 		kc.modifier |= MODIFIER_ALTERNATE;
 	if (modifiers & NSControlKeyMask)
-		kc.modifier |= MODIFIER_COMMAND;
+		kc.modifier |= KEY_MODIFIER_INTERPRETED_AS_CONTROL;
 
 	return kc;
 }
@@ -228,7 +236,14 @@ HIDDEN int32_t eventButton (NSEvent* theEvent)
 	int32_t buttons = 0;
 	switch ([theEvent buttonNumber])
 	{
+#if VSTGUI_FAKE_ONE_BUTTON_RIGHT_CLICK
 		case 0: buttons = ([theEvent modifierFlags] & NSControlKeyMask) ? kRButton : kLButton; break;
+#else
+		// I don't believe it's the role of a library to lie about the actual buttons pressed:
+		// A library can't guess what the app needs or the end-user intends, so single-button mouse handling
+		// should either be done in the OS / driver or the app. Not here where it loses information.
+		case 0: buttons = kLButton; break;
+#endif
 		case 1: buttons = kRButton; break;
 		case 2: buttons = kMButton; break;
 		case 3: buttons = kButton4; break;

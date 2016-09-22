@@ -97,6 +97,12 @@
 			#endif
 		#endif
 	#endif
+	#if !defined(VSTGUI_SWAP_CONTROL_AND_COMMAND)
+		#define VSTGUI_SWAP_CONTROL_AND_COMMAND 0
+	#endif
+	#if !defined(VSTGUI_FAKE_ONE_BUTTON_RIGHT_CLICK)
+		#define VSTGUI_FAKE_ONE_BUTTON_RIGHT_CLICK 0
+	#endif
 	#ifdef __has_feature
 		#define VSTGUI_RVALUE_REF_SUPPORT __has_feature (cxx_rvalue_references)
 		#define VSTGUI_RANGE_BASED_FOR_LOOP_SUPPORT __has_feature (cxx_range_for)

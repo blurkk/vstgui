@@ -69,7 +69,7 @@ public:
 protected:
 	~CoreTextFont ();
 
-	void drawString (CDrawContext* context, IPlatformString* string, const CPoint& p, bool antialias = true) VSTGUI_OVERRIDE_VMETHOD;
+	void drawString (CDrawContext* context, IPlatformString* string, const CPoint& p, bool antialias = true, CBaselineTxtAlign baseAlign = kAlignBaseline) VSTGUI_OVERRIDE_VMETHOD;
 	CCoord getStringWidth (CDrawContext* context, IPlatformString* string, bool antialias = true) VSTGUI_OVERRIDE_VMETHOD;
 	CFDictionaryRef getStringAttributes (const CGColorRef color = 0);
 
@@ -84,6 +84,13 @@ protected:
 	double descent;
 	double leading;
 	double capHeight;
+};
+
+//-----------------------------------------------------------------------------
+class CoreTextCustomFontRegistry : public ICustomFontRegistry
+{
+public:
+	virtual bool registerFont (UTF8StringPtr name, UTF8StringPtr fileName);
 };
 
 } // namespace

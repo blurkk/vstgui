@@ -221,6 +221,7 @@ class IPlatformBitmap;
 class IPlatformBitmapPixelAccess;
 class IPlatformFont;
 class IFontPainter;
+class ICustomFontRegistry;
 
 }
 

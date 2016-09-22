@@ -56,6 +56,14 @@
 
 #import <Carbon/Carbon.h>
 
+#if VSTGUI_SWAP_CONTROL_AND_COMMAND
+	#define VSTGUI_INTERPRETED_AS_COMMAND kControl
+	#define VSTGUI_INTERPRETED_AS_CONTROL kApple
+#else
+	#define VSTGUI_INTERPRETED_AS_COMMAND kApple
+	#define VSTGUI_INTERPRETED_AS_CONTROL kControl
+#endif
+
 using namespace VSTGUI;
 
 //------------------------------------------------------------------------------------
@@ -97,11 +105,11 @@ static void mapModifiers (NSUInteger nsEventModifiers, CButtonState& buttonState
 	if (nsEventModifiers & NSShiftKeyMask)
 		buttonState |= kShift;
 	if (nsEventModifiers & NSCommandKeyMask)
-		buttonState |= kControl;
+		buttonState |= VSTGUI_INTERPRETED_AS_COMMAND;
 	if (nsEventModifiers & NSAlternateKeyMask)
 		buttonState |= kAlt;
 	if (nsEventModifiers & NSControlKeyMask)
-		buttonState |= kApple;
+		buttonState |= VSTGUI_INTERPRETED_AS_CONTROL;
 }
 
 //------------------------------------------------------------------------------------
@@ -859,12 +867,17 @@ bool NSViewFrame::getCurrentMouseButtons (CButtonState& buttons) const
 	NSUInteger mouseButtons = [NSEvent pressedMouseButtons];
 	if (mouseButtons & (1 << 0))
 	{
-		if (mouseButtons == (1 << 0) && modifiers & NSControlKeyMask)
+#if VSTGUI_FAKE_ONE_BUTTON_RIGHT_CLICK
+		// I don't believe it's the role of a library to lie about the actual buttons pressed:
+		// A library can't guess what the app needs or the end-user intends, so single-button mouse handling
+		// should either be done in the OS / driver or the app. Not here where it loses information.
+		if (mouseButtons == (1 << 0) && modifiers & NSControlKeyMask) // @fixme
 		{
 			buttons = kRButton;
 			return true;
 		}
 		else
+#endif
 			buttons |= kLButton;
 	}
 	if (mouseButtons & (1 << 1))
@@ -877,6 +890,7 @@ bool NSViewFrame::getCurrentMouseButtons (CButtonState& buttons) const
 		buttons |= kButton5;
 	
 #else
+//#error "old version of mouse handling, modifier key swapping not revised"
 	UInt32 state = GetCurrentButtonState ();
 	if (state == kEventMouseButtonPrimary)
 		buttons |= kLButton;

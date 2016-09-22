@@ -157,11 +157,15 @@ public:
 	//@{
 	CCoord getStringWidth (UTF8StringPtr pStr);	///< get the width of an UTF-8 encoded string
 	void drawString (UTF8StringPtr string, const CRect& _rect, const CHoriTxtAlign hAlign = kCenterText, bool antialias = true);	///< draw an UTF-8 encoded string
-	void drawString (UTF8StringPtr string, const CPoint& _point, bool antialias = true);	///< draw an UTF-8 encoded string
+	/// draw a UTF-8 encoded string where the point's meaning depends on the platform
+	/// (Windows GDI+ draws from top-left, Core Text draws from the font's baseline.)
+	void drawString (UTF8StringPtr string, const CPoint& _point, bool antialias = true);
+	void drawStringOnBaseline (UTF8StringPtr string, const CPoint& _point, bool antialias = true);	///< draw a UTF-8 encoded string with baseline aligned to point
 
 	CCoord getStringWidth (IPlatformString* pStr);	///< get the width of a platform string
 	void drawString (IPlatformString* string, const CRect& _rect, const CHoriTxtAlign hAlign = kCenterText, bool antialias = true);	///< draw a platform string
 	void drawString (IPlatformString* string, const CPoint& _point, bool antialias = true);	///< draw a platform string
+	void drawStringOnBaseline (IPlatformString* string, const CPoint& _point, bool antialias = true);	///< draw a platform string with baseline aligned to point
 	//@}
 	
 	//-----------------------------------------------------------------------------

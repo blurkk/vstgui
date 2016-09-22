@@ -581,7 +581,7 @@ bool COptionMenu::popup ()
 			lastMenu = platformPopupResult.menu;
 			lastResult = platformPopupResult.index;
 			lastMenu->setValue ((float)lastResult);
-			valueChanged ();
+			lastMenu->valueChanged ();
 			invalid ();
 			popupResult = true;
 			CCommandMenuItem* commandItem = dynamic_cast<CCommandMenuItem*>(lastMenu->getEntry (lastResult));

@@ -299,7 +299,7 @@ bool CControl::checkDefaultValue (CButtonState button)
 #if TARGET_OS_IPHONE
 	if (button.isDoubleClick ())
 #else
-	if (button.isLeftButton () && button.getModifierState () == kDefaultValueModifier)
+	if (button.isLeftButton () && (button.getModifierState () == kDefaultValueModifier || button.isDoubleClick()))
 #endif
 	{
 		float defValue = getDefaultValue ();

@@ -64,7 +64,7 @@ protected:
 
 	IFontPainter* getPainter () VSTGUI_OVERRIDE_VMETHOD { return this; }
 
-	void drawString (CDrawContext* context, IPlatformString* string, const CPoint& p, bool antialias = true) VSTGUI_OVERRIDE_VMETHOD;
+	void drawString (CDrawContext* context, IPlatformString* string, const CPoint& p, bool antialias = true, CBaselineTxtAlign baseAlign = kAlignBaseline) VSTGUI_OVERRIDE_VMETHOD;
 	CCoord getStringWidth (CDrawContext* context, IPlatformString* string, bool antialias = true) VSTGUI_OVERRIDE_VMETHOD;
 
 	IDWriteTextFormat* textFormat;

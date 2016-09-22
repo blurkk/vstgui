@@ -133,7 +133,7 @@ IDWriteTextLayout* D2DFont::createTextLayout (IPlatformString* string) const
 }
 
 //-----------------------------------------------------------------------------
-void D2DFont::drawString (CDrawContext* context, IPlatformString* string, const CPoint& p, bool antialias)
+void D2DFont::drawString (CDrawContext* context, IPlatformString* string, const CPoint& p, bool antialias, CBaselineTxtAlign baseAlign)
 {
 	D2DDrawContext* d2dContext = dynamic_cast<D2DDrawContext*> (context);
 	if (d2dContext && textFormat)
@@ -165,6 +165,7 @@ void D2DFont::drawString (CDrawContext* context, IPlatformString* string, const 
 				pos.y += 0.5;
 				CRect clipRect;
 				
+#warning "Need to implement correct baseline alignment"
 				D2D1_POINT_2F origin = {(FLOAT)(p.x), (FLOAT)(pos.y)};
 				d2dContext->getRenderTarget ()->DrawTextLayout (origin, textLayout, d2dContext->getFontBrush ());
 				textLayout->Release ();

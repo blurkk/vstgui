@@ -116,9 +116,9 @@ enum VstVirtualKey
 enum VstModifierKey
 {
 	MODIFIER_SHIFT     = 1<<0, // Shift
-	MODIFIER_ALTERNATE = 1<<1, // Alt
-	MODIFIER_COMMAND   = 1<<2, // Control on Mac
-	MODIFIER_CONTROL   = 1<<3  // Ctrl on PC, Apple on Mac
+	MODIFIER_ALTERNATE = 1<<1, // Alt (also known as Option on Mac)
+	MODIFIER_COMMAND   = 1<<2, // Command on Mac, unless swapped with Ctrl
+	MODIFIER_CONTROL   = 1<<3  // Ctrl on PC and Mac, unless swapped with Command
 };
 #endif
 

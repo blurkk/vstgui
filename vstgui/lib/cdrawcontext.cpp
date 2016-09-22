@@ -342,15 +342,24 @@ void CDrawContext::drawString (IPlatformString* string, const CRect& _rect, cons
 	
 	CRect rect (_rect);
 	
-	double capHeight = -1;
+	double descent = 0.0;
 	IPlatformFont* platformFont = currentState.font->getPlatformFont ();
 	if (platformFont)
-		capHeight = platformFont->getCapHeight ();
+	{
+		descent = platformFont->getDescent ();
+		if (descent < 0.0)
+		{
+			descent = 0.0;
+		}
+	}
 	
-	if (capHeight > 0.)
-		rect.bottom -= (rect.getHeight () / 2. - capHeight / 2.);
-	else
-		rect.bottom -= (rect.getHeight () / 2. - currentState.font->getSize () / 2.) + 1.;
+	// Attempt to vertically centre the text in the rectangle. Ideally we'd attempt a balance of typical text,
+	// not the full height of the font. The cap size metric of a font would be good for this, but unfortunately,
+	// it appears that descent is the *only* metric with a consistent value across the different platforms.
+	// In practise so far, this seems to be good enough.
+	// An alternative would be to use each platform's native alignment options for text drawing,
+	// but that is fairly likely to inconsistently position text between the platforms.
+	CCoord baseline = _rect.top + (_rect.getHeight () + currentState.font->getSize ()) / 2. - descent;
 	if (hAlign != kLeftText)
 	{
 		CCoord stringWidth = painter->getStringWidth (this, string, antialias);
@@ -358,9 +367,14 @@ void CDrawContext::drawString (IPlatformString* string, const CRect& _rect, cons
 			rect.left = rect.right - stringWidth;
 		else
 			rect.left = rect.left + (rect.getWidth () / 2.) - (stringWidth / 2.);
+		rect.right = rect.left + stringWidth;
 	}
-
-	painter->drawString (this, string, CPoint (rect.left, rect.bottom), antialias);
+	// Draw the string unclipped by the rectangle passed in. This is partly because with all the position shifting
+	// shenanigans required to draw the text in a consistent position between the platforms, it may have shifted
+	// outside the passed in rectangles. But the main reason is it can be useful calling this to draw text aligned
+	// with rectangles calculated relative to other rectangles that don't exactly bound the string. The caller can
+	// always explicitly add a clipping region if this is really needed.
+	painter->drawString (this, string, CPoint (rect.left, baseline), antialias);
 }
 
 //------------------------------------------------------------------------
@@ -371,7 +385,20 @@ void CDrawContext::drawString (IPlatformString* string, const CPoint& point, boo
 	
 	IFontPainter* painter = currentState.font->getFontPainter ();
 	if (painter)
-		painter->drawString (this, string, point, antialias);
+		painter->drawString (this, string, point, antialias, kAlignNative);
+}
+
+//-----------------------------------------------------------------------------
+void CDrawContext::drawStringOnBaseline (IPlatformString* string, const CPoint& point, bool antialias)
+{
+	if (string == 0 || currentState.font == 0)
+		return;
+
+	IFontPainter* painter = currentState.font->getFontPainter ();
+	if (painter)
+	{
+		painter->drawString (this, string, point, antialias, kAlignBaseline);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -391,6 +418,13 @@ void CDrawContext::drawString (UTF8StringPtr string, const CPoint& point, bool a
 void CDrawContext::drawString (UTF8StringPtr string, const CRect& rect, const CHoriTxtAlign hAlign, bool antialias)
 {
 	drawString (getDrawString (string).getPlatformString (), rect, hAlign, antialias);
+	clearDrawString ();
+}
+
+//-----------------------------------------------------------------------------
+void CDrawContext::drawStringOnBaseline (UTF8StringPtr string, const CPoint& point, bool antialias)
+{
+	drawStringOnBaseline (getDrawString (string).getPlatformString (), point, antialias);
 	clearDrawString ();
 }
 

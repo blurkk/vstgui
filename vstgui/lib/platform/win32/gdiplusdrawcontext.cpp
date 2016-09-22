@@ -98,7 +98,7 @@ GdiplusDrawContext::~GdiplusDrawContext ()
 //-----------------------------------------------------------------------------
 void GdiplusDrawContext::init ()
 {
-	pGraphics->SetInterpolationMode (Gdiplus::InterpolationModeLowQuality);
+	pGraphics->SetInterpolationMode (Gdiplus::InterpolationModeHighQuality);
 	pGraphics->SetPageUnit (Gdiplus::UnitPixel);
 	pGraphics->SetPixelOffsetMode (Gdiplus::PixelOffsetModeHalf);
 	pPen = ::new Gdiplus::Pen (Gdiplus::Color (0, 0, 0), 1);

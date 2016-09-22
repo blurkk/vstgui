@@ -336,6 +336,12 @@ bool IPlatformFont::getAllPlatformFontFamilies (std::list<std::string>& fontFami
 	return GdiPlusFont::getAllPlatformFontFamilies (fontFamilyNames);
 }
 
+//-----------------------------------------------------------------------------
+ICustomFontRegistry* ICustomFontRegistry::create ()
+{
+	return GdiPlusCustomFontRegistry::getInstance ();
+}
+
 /// @cond ignore
 //-----------------------------------------------------------------------------
 GDIPlusGlobals* GDIPlusGlobals::gInstance = 0;
